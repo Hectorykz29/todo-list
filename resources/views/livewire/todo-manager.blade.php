@@ -38,7 +38,7 @@ new class extends Component {
 <div>
     <form wire:submit='createTodo' class="flex items-center justify-between mb-8 space-x-8">
         <x-text-input wire:model='todoName' class="flex-1 w-full" />
-        <x-primary-button type="submit">Create</x-primary-button>
+        <x-primary-button type="submit">Crear</x-primary-button>
         <x-input-error :messages="$errors->get('todoName')" class="mt-2" />
     </form>
     @foreach ($todos as $todo)
