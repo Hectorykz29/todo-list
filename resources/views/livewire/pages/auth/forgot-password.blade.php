@@ -1,60 +1,63 @@
 <?php
 
-use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
 
 new #[Layout('layouts.guest')] class extends Component
 {
-    public string $email = '';
+    public string $password = '';
 
     /**
-     * Send a password reset link to the provided email address.
+     * Confirmar la contraseña actual del usuario.
      */
-    public function sendPasswordResetLink(): void
+    public function confirmPassword(): void
     {
         $this->validate([
-            'email' => ['required', 'string', 'email'],
+            'password' => ['required', 'string'],
         ]);
 
-        // We will send the password reset link to this user. Once we have attempted
-        // to send the link, we will examine the response then see the message we
-        // need to show to the user. Finally, we'll send out a proper response.
-        $status = Password::sendResetLink(
-            $this->only('email')
-        );
-
-        if ($status != Password::RESET_LINK_SENT) {
-            $this->addError('email', __($status));
-
-            return;
+        if (! Auth::guard('web')->validate([
+            'email' => Auth::user()->email,
+            'password' => $this->password,
+        ])) {
+            throw ValidationException::withMessages([
+                'password' => __('auth.password'),
+            ]);
         }
 
-        $this->reset('email');
+        session(['auth.password_confirmed_at' => time()]);
 
-        session()->flash('status', __($status));
+        $this->redirectIntended(default: route('dashboard', absolute: false), navigate: true);
     }
-}; ?>
+};
+
+?>
 
 <div>
     <div class="mb-4 text-sm text-gray-600 dark:text-gray-400">
-        {{ __('Forgot your password? No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.') }}
+        {{ __('Esta es una zona segura de la aplicación. Por favor, confirma tu contraseña antes de continuar.') }}
     </div>
 
-    <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
-
-    <form wire:submit="sendPasswordResetLink">
-        <!-- Email Address -->
+    <form wire:submit="confirmPassword">
+        <!-- Contraseña -->
         <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input wire:model="email" id="email" class="block mt-1 w-full" type="email" name="email" required autofocus />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+            <x-input-label for="password" :value="__('Contraseña')" />
+
+            <x-text-input wire:model="password"
+                          id="password"
+                          class="block mt-1 w-full"
+                          type="password"
+                          name="password"
+                          required autocomplete="current-password" />
+
+            <x-input-error :messages="$errors->get('password')" class="mt-2" />
         </div>
 
-        <div class="flex items-center justify-end mt-4">
+        <div class="flex justify-end mt-4">
             <x-primary-button>
-                {{ __('Email Password Reset Link') }}
+                {{ __('Confirmar') }}
             </x-primary-button>
         </div>
     </form>
