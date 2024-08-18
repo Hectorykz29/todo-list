@@ -2,9 +2,9 @@
 
 use Livewire\Volt\Component;
 use App\Models\Todo;
+use Illuminate\Support\Facades\Auth;
 
 new class extends Component {
-    public Todo $todo;
     public string $todoName = '';
 
     public function createTodo()
@@ -16,8 +16,11 @@ new class extends Component {
         Auth::user()
             ->todos()
             ->create([
-                'name' => $this->pull('todoName'),
+                'name' => $this->todoName,
+                'completed' => false,
             ]);
+
+        $this->todoName = '';
     }
 
     public function deleteTodo(int $id)
@@ -27,34 +30,48 @@ new class extends Component {
         $todo->delete();
     }
 
+    public function completeTodo(int $id)
+    {
+        $todo = Todo::find($id);
+        $this->authorize('update', $todo);
+        $todo->update(['completed' => true]);
+
+        // Opcionalmente puedes agregar un mensaje o notificación aquí
+        $this->dispatchBrowserEvent('todo-completed', ['todoId' => $id]);
+    }
+
     public function with()
     {
         return [
             'todos' => Todo::all(),
         ];
     }
-}; ?>
-
-<div>
-    <form wire:submit='createTodo' class="flex items-center justify-between mb-8 space-x-8">
-        <x-text-input wire:model='todoName' class="flex-1 w-full" />
-        <x-primary-button type="submit">Crear</x-primary-button>
-        <x-input-error :messages="$errors->get('todoName')" class="mt-2" />
+};
+?>
+<div class="p-6 bg-white">
+    <form wire:submit.prevent='createTodo' class="flex items-center space-x-4 mb-8">
+        <x-text-input wire:model='todoName' class="flex-1" placeholder="Ingrese una nueva tarea..." />
+        <x-primary-button type="submit" class="bg-red-600 hover:bg-red-700">Crear</x-primary-button>
     </form>
+
     @foreach ($todos as $todo)
         <div wire:transition wire:key='{{ $todo->id }}'
-            class="flex items-center justify-between p-4 m-auto mb-4 space-x-4 bg-white border border-gray-200 rounded-lg shadow-md ">
-            <a href="{{ route('todo', $todo->id) }}" class="flex items-center justify-between space-x-4">
-                <div class="text-sm font-medium text-gray-800">
-                    {{ $todo->name }}
-                </div>
-            </a>
-            <div class="flex items-center justify-between space-x-4">
-                <div class="text-xs text-gray-400">
+            class="flex items-center justify-between p-4 mb-4 border rounded-lg 
+            {{ $todo->completed ? 'bg-red-100 border-red-200' : 'bg-white border-gray-300' }} 
+            shadow-md">
+            <div class="flex-1 text-sm font-medium {{ $todo->completed ? 'text-gray-400 line-through' : 'text-gray-800' }}">
+                {{ $todo->name }}
+            </div>
+            <div class="flex items-center space-x-4">
+                <span class="text-xs font-semibold text-gray-500">
                     {{ $todo->user->name }}
-                </div>
+                </span>
+                @if (!$todo->completed)
+                    <x-primary-button wire:click='completeTodo({{ $todo->id }})'
+                        class="bg-red-600 hover:bg-red-700">Completar</x-primary-button>
+                @endif
                 <x-danger-button wire:click='deleteTodo({{ $todo->id }})'
-                    class="flex-shrink-0">Borrar</x-danger-button>
+                    class="bg-red-600 hover:bg-red-700">Borrar</x-danger-button>
             </div>
         </div>
     @endforeach

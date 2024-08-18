@@ -12,7 +12,8 @@ class TodoPolicy
      */
     public function viewAny(User $user): bool
     {
-        //
+        // Permitir que todos los usuarios vean todos los modelos
+        return true;
     }
 
     /**
@@ -28,7 +29,8 @@ class TodoPolicy
      */
     public function create(User $user): bool
     {
-        //
+        // Permitir que cualquier usuario cree tareas
+        return true;
     }
 
     /**
@@ -36,7 +38,7 @@ class TodoPolicy
      */
     public function update(User $user, Todo $todo): bool
     {
-        //
+        return $user->id === $todo->user_id;
     }
 
     /**
@@ -52,7 +54,7 @@ class TodoPolicy
      */
     public function restore(User $user, Todo $todo): bool
     {
-        //
+        return $user->id === $todo->user_id;
     }
 
     /**
@@ -60,6 +62,6 @@ class TodoPolicy
      */
     public function forceDelete(User $user, Todo $todo): bool
     {
-        //
+        return $user->id === $todo->user_id;
     }
 }
