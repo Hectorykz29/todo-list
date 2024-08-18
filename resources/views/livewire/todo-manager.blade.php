@@ -55,11 +55,11 @@ new class extends Component {
     }
 };
 ?>
-<div class="p-6 bg-white shadow-lg rounded-lg">
+<div class="p-6 bg-black text-white shadow-lg rounded-lg">
     <h2 class="text-lg font-bold mb-4">Tareas</h2>
     <form wire:submit.prevent='createTodo' class="flex items-center space-x-4 mb-6">
-        <x-text-input wire:model='todoName' class="flex-1" placeholder="Ingrese una nueva tarea..." />
-        <x-primary-button type="submit" class="bg-red-600 hover:bg-red-700 flex items-center space-x-2">
+        <x-text-input wire:model='todoName' class="flex-1 bg-gray-800 text-white placeholder-gray-400" placeholder="Ingrese una nueva tarea..." />
+        <x-primary-button type="submit" class="bg-green-600 hover:bg-green-700 flex items-center space-x-2 text-white">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
             </svg>
@@ -72,27 +72,27 @@ new class extends Component {
             @foreach ($todos as $todo)
                 <div wire:transition wire:key='{{ $todo->id }}'
                     class="flex items-center justify-between p-4 border rounded-lg
-                    {{ $todo->completed ? 'bg-red-100 border-red-200' : 'bg-white border-gray-300' }} 
+                    {{ $todo->completed ? 'bg-red-800 border-red-700' : 'bg-gray-800 border-gray-600' }} 
                     shadow-sm transition-all duration-300 ease-in-out">
                     <div class="flex items-center space-x-4 flex-1">
-                        <svg class="w-6 h-6 {{ $todo->completed ? 'text-red-500' : 'text-gray-500' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <svg class="w-6 h-6 {{ $todo->completed ? 'text-red-400' : 'text-white' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             @if ($todo->completed)
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                             @else
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 20v-6m0-4V4m-7 7h14"></path>
                             @endif
                         </svg>
-                        <div class="flex-1 text-sm font-medium {{ $todo->completed ? 'text-gray-400 line-through' : 'text-gray-800' }}">
+                        <div class="flex-1 text-sm font-medium {{ $todo->completed ? 'text-gray-400 line-through' : 'text-white' }}">
                             {{ $todo->name }}
                         </div>
                     </div>
                     <div class="flex items-center justify-center space-x-4 flex-none">
-                        <span class="text-sm font-bold text-gray-800">
+                        <span class="text-sm font-bold {{ $todo->completed ? 'text-red-400' : 'text-white' }}">
                             {{ $todo->user->name }}
                         </span>
                         @if (!$todo->completed)
                             <x-primary-button wire:click='completeTodo({{ $todo->id }})'
-                                class="bg-red-600 hover:bg-red-700 flex items-center space-x-2">
+                                class="bg-green-600 hover:bg-green-700 flex items-center space-x-2 text-white">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                                 </svg>
@@ -100,7 +100,7 @@ new class extends Component {
                             </x-primary-button>
                         @endif
                         <x-danger-button wire:click='deleteTodo({{ $todo->id }})'
-                            class="bg-red-600 hover:bg-red-700 flex items-center space-x-2">
+                            class="bg-red-600 hover:bg-red-700 flex items-center space-x-2 text-white">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                             </svg>
@@ -111,8 +111,11 @@ new class extends Component {
             @endforeach
         </div>
     @else
-        <div class="text-center text-gray-500 py-8">
+        <div class="text-center text-gray-400 py-8">
             No hay tareas asignadas.
         </div>
     @endif
 </div>
+
+
+
