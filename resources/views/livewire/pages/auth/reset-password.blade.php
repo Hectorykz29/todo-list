@@ -19,7 +19,7 @@ new #[Layout('layouts.guest')] class extends Component
     public string $password_confirmation = '';
 
     /**
-     * Mount the component.
+     * Montar el componente.
      */
     public function mount(string $token): void
     {
@@ -29,7 +29,7 @@ new #[Layout('layouts.guest')] class extends Component
     }
 
     /**
-     * Reset the password for the given user.
+     * Restablecer la contraseña para el usuario dado.
      */
     public function resetPassword(): void
     {
@@ -39,9 +39,9 @@ new #[Layout('layouts.guest')] class extends Component
             'password' => ['required', 'string', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        // Here we will attempt to reset the user's password. If it is successful we
-        // will update the password on an actual user model and persist it to the
-        // database. Otherwise we will parse the error and return the response.
+        // Aquí intentaremos restablecer la contraseña del usuario. Si tiene éxito, actualizaremos
+        // la contraseña en el modelo del usuario real y la persistiremos en la
+        // base de datos. De lo contrario, analizaremos el error y devolveremos la respuesta.
         $status = Password::reset(
             $this->only('email', 'password', 'password_confirmation', 'token'),
             function ($user) {
@@ -54,9 +54,9 @@ new #[Layout('layouts.guest')] class extends Component
             }
         );
 
-        // If the password was successfully reset, we will redirect the user back to
-        // the application's home authenticated view. If there is an error we can
-        // redirect them back to where they came from with their error message.
+        // Si la contraseña se restableció correctamente, redirigiremos al usuario de vuelta a
+        // la vista de inicio de sesión autenticada de la aplicación. Si hay un error, podemos
+        // redirigirlos de regreso al lugar de donde vinieron con su mensaje de error.
         if ($status != Password::PASSWORD_RESET) {
             $this->addError('email', __($status));
 
@@ -71,23 +71,23 @@ new #[Layout('layouts.guest')] class extends Component
 
 <div>
     <form wire:submit="resetPassword">
-        <!-- Email Address -->
+        <!-- Dirección de correo electrónico -->
         <div>
-            <x-input-label for="email" :value="__('Email')" />
+            <x-input-label for="email" :value="__('Correo electrónico')" />
             <x-text-input wire:model="email" id="email" class="block mt-1 w-full" type="email" name="email" required autofocus autocomplete="username" />
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
         </div>
 
-        <!-- Password -->
+        <!-- Contraseña -->
         <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
+            <x-input-label for="password" :value="__('Contraseña')" />
             <x-text-input wire:model="password" id="password" class="block mt-1 w-full" type="password" name="password" required autocomplete="new-password" />
             <x-input-error :messages="$errors->get('password')" class="mt-2" />
         </div>
 
-        <!-- Confirm Password -->
+        <!-- Confirmar Contraseña -->
         <div class="mt-4">
-            <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
+            <x-input-label for="password_confirmation" :value="__('Confirmar Contraseña')" />
 
             <x-text-input wire:model="password_confirmation" id="password_confirmation" class="block mt-1 w-full"
                           type="password"
@@ -98,7 +98,7 @@ new #[Layout('layouts.guest')] class extends Component
 
         <div class="flex items-center justify-end mt-4">
             <x-primary-button>
-                {{ __('Reset Password') }}
+                {{ __('Restablecer Contraseña') }}
             </x-primary-button>
         </div>
     </form>

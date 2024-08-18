@@ -1,63 +1,60 @@
 <?php
 
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Password;
 use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
 
 new #[Layout('layouts.guest')] class extends Component
 {
-    public string $password = '';
+    public string $email = '';
 
     /**
-     * Confirmar la contraseña actual del usuario.
+     * Enviar un enlace de restablecimiento de contraseña al correo electrónico proporcionado.
      */
-    public function confirmPassword(): void
+    public function sendPasswordResetLink(): void
     {
         $this->validate([
-            'password' => ['required', 'string'],
+            'email' => ['required', 'string', 'email'],
         ]);
 
-        if (! Auth::guard('web')->validate([
-            'email' => Auth::user()->email,
-            'password' => $this->password,
-        ])) {
-            throw ValidationException::withMessages([
-                'password' => __('auth.password'),
-            ]);
+        // Enviaremos el enlace de restablecimiento de contraseña a este usuario. Una vez que
+        // intentemos enviar el enlace, examinaremos la respuesta y veremos el mensaje que
+        // necesitamos mostrar al usuario. Finalmente, enviaremos una respuesta adecuada.
+        $status = Password::sendResetLink(
+            $this->only('email')
+        );
+
+        if ($status != Password::RESET_LINK_SENT) {
+            $this->addError('email', __($status));
+
+            return;
         }
 
-        session(['auth.password_confirmed_at' => time()]);
+        $this->reset('email');
 
-        $this->redirectIntended(default: route('dashboard', absolute: false), navigate: true);
+        session()->flash('status', __($status));
     }
-};
-
-?>
+}; ?>
 
 <div>
     <div class="mb-4 text-sm text-gray-600 dark:text-gray-400">
-        {{ __('Esta es una zona segura de la aplicación. Por favor, confirma tu contraseña antes de continuar.') }}
+        {{ __('¿Olvidaste tu contraseña? No hay problema. Solo indícanos tu dirección de correo electrónico y te enviaremos un enlace para restablecer la contraseña que te permitirá elegir una nueva.') }}
     </div>
 
-    <form wire:submit="confirmPassword">
-        <!-- Contraseña -->
+    <!-- Estado de la sesión -->
+    <x-auth-session-status class="mb-4" :status="session('status')" />
+
+    <form wire:submit="sendPasswordResetLink">
+        <!-- Dirección de correo electrónico -->
         <div>
-            <x-input-label for="password" :value="__('Contraseña')" />
-
-            <x-text-input wire:model="password"
-                          id="password"
-                          class="block mt-1 w-full"
-                          type="password"
-                          name="password"
-                          required autocomplete="current-password" />
-
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
+            <x-input-label for="email" :value="__('Correo electrónico')" />
+            <x-text-input wire:model="email" id="email" class="block mt-1 w-full" type="email" name="email" required autofocus />
+            <x-input-error :messages="$errors->get('email')" class="mt-2" />
         </div>
 
-        <div class="flex justify-end mt-4">
+        <div class="flex items-center justify-end mt-4">
             <x-primary-button>
-                {{ __('Confirmar') }}
+                {{ __('Enviar enlace de restablecimiento de contraseña') }}
             </x-primary-button>
         </div>
     </form>
